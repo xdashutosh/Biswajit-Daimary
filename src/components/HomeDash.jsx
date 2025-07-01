@@ -26,6 +26,7 @@ import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
+import Reports from './Reports';
 
 // Dashboard Component (your existing component, modified)
 const DashboardComponent = () => {
@@ -837,112 +838,7 @@ const WelcomePage = ({ onClose }) => {
           </Button>
         </div>
 
-        {/* Welcome Content */}
-        <div className="space-y-6">
-          {/* Profile Section */}
-          <div className="text-center">
-            <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4 shadow-lg">
-              <img 
-                src="https://assam.gov.in/sites/default/files/inline-images/SpeakerofAssam.jpg"
-                alt="Biswajit Daimary"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <h3 className="text-xl font-semibold text-slate-800">Welcome, Biswajit Daimary</h3>
-            <p className="text-slate-600">Member of the Assam Legislative Assembly</p>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg p-4">
-            <h4 className="font-semibold text-slate-800 mb-3">Today's Overview</h4>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-slate-600">Active Campaigns:</span>
-                <span className="font-semibold text-blue-600">12</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-600">Pending Messages:</span>
-                <span className="font-semibold text-orange-600">8</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-600">New Ideas:</span>
-                <span className="font-semibold text-green-600">23</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="space-y-3">
-            <h4 className="font-semibold text-slate-800">Quick Actions</h4>
-            <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" className="flex flex-col items-center p-4 h-auto">
-                <FileText className="w-6 h-6 mb-2 text-blue-500" />
-                <span className="text-sm">New Report</span>
-              </Button>
-              <Button variant="outline" className="flex flex-col items-center p-4 h-auto">
-                <MessageCircle className="w-6 h-6 mb-2 text-green-500" />
-                <span className="text-sm">Messages</span>
-              </Button>
-              <Button variant="outline" className="flex flex-col items-center p-4 h-auto">
-                <Users className="w-6 h-6 mb-2 text-purple-500" />
-                <span className="text-sm">Manage Users</span>
-              </Button>
-              <Button variant="outline" className="flex flex-col items-center p-4 h-auto">
-                <Settings className="w-6 h-6 mb-2 text-gray-500" />
-                <span className="text-sm">Settings</span>
-              </Button>
-            </div>
-          </div>
-
-          {/* Recent Updates */}
-          <div className="space-y-3">
-            <h4 className="font-semibold text-slate-800">Recent Updates</h4>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
-                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                <div>
-                  <p className="text-sm font-medium text-slate-800">New constituency feedback received</p>
-                  <p className="text-xs text-slate-500">2 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
-                <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                <div>
-                  <p className="text-sm font-medium text-slate-800">Social media engagement up 15%</p>
-                  <p className="text-xs text-slate-500">5 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
-                <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
-                <div>
-                  <p className="text-sm font-medium text-slate-800">Monthly report generated</p>
-                  <p className="text-xs text-slate-500">1 day ago</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Upcoming Events */}
-          <div className="space-y-3">
-            <h4 className="font-semibold text-slate-800">Upcoming Events</h4>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 border border-slate-200 rounded-lg">
-                <Calendar className="w-5 h-5 text-blue-500" />
-                <div>
-                  <p className="text-sm font-medium text-slate-800">Samvad Sabha Meeting</p>
-                  <p className="text-xs text-slate-500">Tomorrow, 10:00 AM</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 border border-slate-200 rounded-lg">
-                <Users className="w-5 h-5 text-green-500" />
-                <div>
-                  <p className="text-sm font-medium text-slate-800">Youth Connect Session</p>
-                  <p className="text-xs text-slate-500">July 5, 2:00 PM</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+       <Reports/>
       </div>
     </div>
   );
