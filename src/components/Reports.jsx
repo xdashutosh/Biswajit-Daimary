@@ -22,11 +22,11 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Users, FileText, Lightbulb, Building, TrendingUp } from 'lucide-react';
+import { MapPin, Users, FileText, Lightbulb, Building, TrendingUp, Vote } from 'lucide-react';
 import * as d3 from 'd3';
 
 // BTC Districts Bubble Map Component
-const BTCDistrictsMap = ({ selectedDistrict, districtData }) => {
+const BTCDistrictsMap = ({ selectedDistrict, selectedConstituency, districtData }) => {
   const svgRef = useRef();
 
   // BTC Districts coordinates and data
@@ -110,6 +110,10 @@ const BTCDistrictsMap = ({ selectedDistrict, districtData }) => {
       .style("opacity", 1);
 
     // Add title
+    const titleText = selectedConstituency && selectedConstituency !== 'all'
+      ? `BTC - ${selectedDistrict} District - ${selectedConstituency} Constituency`
+      : `Bodoland Territorial Council - Districts Overview`;
+    
     g.append("text")
       .attr("x", (width - margin.left - margin.right) / 2)
       .attr("y", -5)
@@ -117,9 +121,9 @@ const BTCDistrictsMap = ({ selectedDistrict, districtData }) => {
       .attr("font-size", "16px")
       .attr("font-weight", "bold")
       .attr("fill", "#1e40af")
-      .text("Bodoland Territorial Council - Districts Overview");
+      .text(titleText);
 
-  }, [selectedDistrict, districtData]);
+  }, [selectedDistrict, selectedConstituency, districtData]);
 
   return (
     <div className="w-full">
@@ -136,228 +140,183 @@ const BTCDistrictsMap = ({ selectedDistrict, districtData }) => {
 
 const Reports = () => {
   const [selectedDistrict, setSelectedDistrict] = useState('Kokrajhar');
+  const [selectedConstituency, setSelectedConstituency] = useState('all');
 
-  // BTC Districts list
-  const btcDistricts = [
-    { value: 'Kokrajhar', label: 'Kokrajhar' },
-    { value: 'Baksa', label: 'Baksa' },
-    { value: 'Udalguri', label: 'Udalguri' },
-    { value: 'Chirang', label: 'Chirang' },
-    { value: 'Tamulpur', label: 'Tamulpur' }
-  ];
+  // BTC Districts and their constituencies
+  const btcDistricts = {
+    'Kokrajhar': {
+      label: 'Kokrajhar',
+      constituencies: [
+        { value: 'Srirampur', label: 'Srirampur (Non-ST)', type: 'Non-ST' },
+        { value: 'Guma', label: 'Guma (Open)', type: 'Open' },
+        { value: 'Saraibil', label: 'Saraibil (ST)', type: 'ST' },
+        { value: 'Kachugaon', label: 'Kachugaon (ST)', type: 'ST' },
+        { value: 'Jamduar', label: 'Jamduar (ST)', type: 'ST' },
+        { value: 'Fakiragram', label: 'Fakiragram (Non-ST)', type: 'Non-ST' },
+        { value: 'Banargaon', label: 'Banargaon (ST)', type: 'ST' },
+        { value: 'Dotma', label: 'Dotma (ST)', type: 'ST' },
+        { value: 'Debargaon', label: 'Debargaon (ST)', type: 'ST' },
+        { value: 'Salakati', label: 'Salakati (ST)', type: 'ST' },
+        { value: 'Baokhungri', label: 'Baokhungri (ST)', type: 'ST' },
+        { value: 'Parbatjhora', label: 'Parbatjhora (ST)', type: 'ST' }
+      ]
+    },
+    'Baksa': {
+      label: 'Baksa',
+      constituencies: [
+        { value: 'Mathanguri', label: 'Mathanguri', type: 'General' },
+        { value: 'Salbari', label: 'Salbari', type: 'General' },
+        { value: 'Koklabari', label: 'Koklabari', type: 'General' },
+        { value: 'Dihira', label: 'Dihira', type: 'General' },
+        { value: 'Mushalpur', label: 'Mushalpur', type: 'General' },
+        { value: 'Baganpara', label: 'Baganpara', type: 'General' },
+        { value: 'Darangajuli', label: 'Darangajuli', type: 'ST' },
+        { value: 'Nagrijuli', label: 'Nagrijuli', type: 'General' },
+        { value: 'Goibari', label: 'Goibari', type: 'General' },
+        { value: 'Suklai_Serfang', label: 'Suklai Serfang', type: 'General' },
+        { value: 'Goreswar', label: 'Goreswar', type: 'General' }
+      ]
+    },
+    'Udalguri': {
+      label: 'Udalguri',
+      constituencies: [
+        { value: 'Khoirabari', label: 'Khoirabari', type: 'ST' },
+        { value: 'Bhergaon', label: 'Bhergaon', type: 'ST' },
+        { value: 'Nonwi_Serfang', label: 'Nonwi Serfang', type: 'ST' },
+        { value: 'Khaling_Duar', label: 'Khaling Duar', type: 'ST' },
+        { value: 'Mudoibari', label: 'Mudoibari', type: 'ST' },
+        { value: 'Harisinga', label: 'Harisinga', type: 'ST' },
+        { value: 'Dhansiri', label: 'Dhansiri', type: 'General' },
+        { value: 'Bhairabkunda', label: 'Bhairabkunda', type: 'ST' },
+        { value: 'Pasnwi_Serfang', label: 'Pasnwi Serfang', type: 'ST' },
+        { value: 'Rowta', label: 'Rowta', type: 'ST' }
+      ]
+    },
+    'Chirang': {
+      label: 'Chirang',
+      constituencies: [
+        { value: 'Chirang', label: 'Chirang', type: 'ST' },
+        { value: 'Chirang_Duars', label: 'Chirang Duars', type: 'ST' },
+        { value: 'Kajalgaon', label: 'Kajalgaon', type: 'ST' },
+        { value: 'Nichima', label: 'Nichima', type: 'ST' },
+        { value: 'Subhaijhar', label: 'Subhaijhar', type: 'ST' },
+        { value: 'Thuribari', label: 'Thuribari', type: 'Open' },
+        { value: 'Manas_Serfang', label: 'Manas Serfang', type: 'ST' }
+      ]
+    },
+    'Tamulpur': {
+      label: 'Tamulpur',
+      constituencies: [
+        { value: 'Tamulpur_Central', label: 'Tamulpur Central', type: 'General' },
+        { value: 'Tamulpur_East', label: 'Tamulpur East', type: 'General' }
+      ]
+    }
+  };
 
-  // District-specific data
-  const districtSpecificData = {
-    Kokrajhar: {
-      users: 8.92, // 8.92 lakh users
-      constituencies: 12,
+  // Reset constituency when district changes
+  useEffect(() => {
+    setSelectedConstituency('all');
+  }, [selectedDistrict]);
+
+  // Generate constituency-specific data
+  const generateConstituencyData = (district, constituency) => {
+    if (!constituency || constituency === 'all') return null;
+
+    // Base multipliers for different constituencies (simulating different population sizes)
+    const constituencyMultipliers = {
+      // Kokrajhar multipliers
+      'Srirampur': 1.2, 'Guma': 1.1, 'Saraibil': 0.9, 'Kachugaon': 1.0,
+      'Jamduar': 0.8, 'Fakiragram': 1.3, 'Banargaon': 0.7, 'Dotma': 0.9,
+      'Debargaon': 1.1, 'Salakati': 0.8, 'Baokhungri': 0.6, 'Parbatjhora': 0.7,
+      // Baksa multipliers
+      'Mathanguri': 1.1, 'Salbari': 1.0, 'Koklabari': 1.2, 'Dihira': 0.8,
+      'Mushalpur': 1.3, 'Baganpara': 0.9, 'Darangajuli': 0.7, 'Nagrijuli': 0.8,
+      'Goibari': 0.9, 'Suklai_Serfang': 0.6, 'Goreswar': 0.7,
+      // Udalguri multipliers
+      'Khoirabari': 0.9, 'Bhergaon': 1.1, 'Nonwi_Serfang': 0.7, 'Khaling_Duar': 0.8,
+      'Mudoibari': 1.0, 'Harisinga': 0.9, 'Dhansiri': 1.2, 'Bhairabkunda': 0.6,
+      'Pasnwi_Serfang': 0.7, 'Rowta': 1.0,
+      // Chirang multipliers
+      'Chirang': 1.2, 'Chirang_Duars': 0.9, 'Kajalgaon': 1.0, 'Nichima': 0.8,
+      'Subhaijhar': 0.7, 'Thuribari': 1.1, 'Manas_Serfang': 0.6,
+      // Tamulpur multipliers
+      'Tamulpur_Central': 1.1, 'Tamulpur_East': 0.9
+    };
+
+    const multiplier = constituencyMultipliers[constituency] || 1.0;
+    const baseUsers = Math.round((80000 + Math.random() * 40000) * multiplier);
+
+    return {
+      users: baseUsers,
+      voterTurnout: Math.round(65 + Math.random() * 20),
       citizenData: [
-        { name: 'Students', value: 32, color: '#0088FE' },
-        { name: 'Farmers', value: 28, color: '#FF8042' },
+        { name: 'Farmers', value: Math.round(30 + Math.random() * 15), color: '#FF8042' },
+        { name: 'Students', value: Math.round(20 + Math.random() * 10), color: '#0088FE' },
+        { name: 'Government Employees', value: Math.round(10 + Math.random() * 8), color: '#00C49F' },
+        { name: 'Private Employees', value: Math.round(8 + Math.random() * 7), color: '#FFBB28' },
+        { name: 'Business Owners', value: Math.round(5 + Math.random() * 5), color: '#8884D8' },
+        { name: 'Others', value: Math.round(5 + Math.random() * 5), color: '#82CA9D' }
+      ],
+      monthlyComplaints: Array.from({length: 13}, (_, i) => ({
+        month: ['Jul 2024', 'Aug 2024', 'Sep 2024', 'Oct 2024', 'Nov 2024', 'Dec 2024', 
+                'Jan 2025', 'Feb 2025', 'Mar 2025', 'Apr 2025', 'May 2025', 'Jun 2025', 'Jul 2025'][i],
+        complaints: Math.round((8 + Math.random() * 12) * multiplier),
+        resolved: Math.round((6 + Math.random() * 10) * multiplier),
+        pending: Math.round((1 + Math.random() * 3) * multiplier)
+      })),
+      complaintCategories: [
+        { category: 'Water Supply', count: Math.round((15 + Math.random() * 10) * multiplier), high: Math.round(5 * multiplier), medium: Math.round(8 * multiplier), low: Math.round(7 * multiplier) },
+        { category: 'Road Infrastructure', count: Math.round((12 + Math.random() * 8) * multiplier), high: Math.round(4 * multiplier), medium: Math.round(6 * multiplier), low: Math.round(5 * multiplier) },
+        { category: 'Electricity', count: Math.round((10 + Math.random() * 6) * multiplier), high: Math.round(3 * multiplier), medium: Math.round(5 * multiplier), low: Math.round(4 * multiplier) },
+        { category: 'Healthcare', count: Math.round((8 + Math.random() * 5) * multiplier), high: Math.round(2 * multiplier), medium: Math.round(4 * multiplier), low: Math.round(3 * multiplier) },
+        { category: 'Education', count: Math.round((6 + Math.random() * 4) * multiplier), high: Math.round(2 * multiplier), medium: Math.round(3 * multiplier), low: Math.round(2 * multiplier) },
+        { category: 'Administrative Services', count: Math.round((5 + Math.random() * 3) * multiplier), high: Math.round(1 * multiplier), medium: Math.round(2 * multiplier), low: Math.round(2 * multiplier) }
+      ],
+      budgetData: [
+        { category: 'Infrastructure Development', allocated: Math.round((15 + Math.random() * 5) * multiplier), spent: Math.round((8 + Math.random() * 4) * multiplier), remaining: Math.round((5 + Math.random() * 3) * multiplier) },
+        { category: 'Social Welfare', allocated: Math.round((10 + Math.random() * 3) * multiplier), spent: Math.round((6 + Math.random() * 2) * multiplier), remaining: Math.round((3 + Math.random() * 2) * multiplier) },
+        { category: 'Healthcare Services', allocated: Math.round((8 + Math.random() * 2) * multiplier), spent: Math.round((5 + Math.random() * 2) * multiplier), remaining: Math.round((2 + Math.random() * 1) * multiplier) },
+        { category: 'Education Programs', allocated: Math.round((6 + Math.random() * 2) * multiplier), spent: Math.round((4 + Math.random() * 1) * multiplier), remaining: Math.round((2 + Math.random() * 1) * multiplier) }
+      ]
+    };
+  };
+
+  // Get current data (constituency if selected, otherwise district)
+  const getCurrentData = () => {
+    if (selectedConstituency && selectedConstituency !== 'all') {
+      return generateConstituencyData(selectedDistrict, selectedConstituency);
+    }
+    
+    // Return district-level data as before (you can keep your existing district data here)
+    const districtData = {
+      'Kokrajhar': { users: 892000, constituencies: 12 },
+      'Baksa': { users: 634000, constituencies: 11 },
+      'Udalguri': { users: 567000, constituencies: 10 },
+      'Chirang': { users: 423000, constituencies: 7 },
+      'Tamulpur': { users: 298000, constituencies: 2 }
+    };
+    
+    return {
+      users: districtData[selectedDistrict]?.users || 500000,
+      constituencies: districtData[selectedDistrict]?.constituencies || 0,
+      // Add placeholder district-level data structure here
+      citizenData: [
+        { name: 'Farmers', value: 35, color: '#FF8042' },
+        { name: 'Students', value: 25, color: '#0088FE' },
         { name: 'Government Employees', value: 15, color: '#00C49F' },
         { name: 'Private Employees', value: 12, color: '#FFBB28' },
         { name: 'Business Owners', value: 8, color: '#8884D8' },
         { name: 'Others', value: 5, color: '#82CA9D' }
       ],
-      monthlyComplaints: [
-        { month: 'Jul 2024', complaints: 28, resolved: 24, pending: 4 },
-        { month: 'Aug 2024', complaints: 35, resolved: 30, pending: 5 },
-        { month: 'Sep 2024', complaints: 22, resolved: 20, pending: 2 },
-        { month: 'Oct 2024', complaints: 41, resolved: 36, pending: 5 },
-        { month: 'Nov 2024', complaints: 26, resolved: 24, pending: 2 },
-        { month: 'Dec 2024', complaints: 18, resolved: 17, pending: 1 },
-        { month: 'Jan 2025', complaints: 44, resolved: 38, pending: 6 },
-        { month: 'Feb 2025', complaints: 33, resolved: 29, pending: 4 },
-        { month: 'Mar 2025', complaints: 29, resolved: 26, pending: 3 },
-        { month: 'Apr 2025', complaints: 23, resolved: 21, pending: 2 },
-        { month: 'May 2025', complaints: 37, resolved: 33, pending: 4 },
-        { month: 'Jun 2025', complaints: 25, resolved: 22, pending: 3 },
-        { month: 'Jul 2025', complaints: 19, resolved: 17, pending: 2 }
-      ],
-      complaintCategories: [
-        { category: 'Infrastructure', count: 89, high: 25, medium: 42, low: 22 },
-        { category: 'Water Supply', count: 67, high: 18, medium: 28, low: 21 },
-        { category: 'Electricity', count: 78, high: 15, medium: 38, low: 25 },
-        { category: 'Healthcare', count: 45, high: 12, medium: 20, low: 13 },
-        { category: 'Education', count: 52, high: 8, medium: 24, low: 20 },
-        { category: 'Transportation', count: 72, high: 22, medium: 32, low: 18 }
-      ],
-      budgetData: [
-        { category: 'Water Projects', allocated: 45, spent: 28, remaining: 17 },
-        { category: 'Road Projects', allocated: 67, spent: 52, remaining: 15 },
-        { category: 'Education', allocated: 38, spent: 24, remaining: 14 },
-        { category: 'Healthcare', allocated: 32, spent: 22, remaining: 10 }
-      ]
-    },
-    Baksa: {
-      users: 6.34, // 6.34 lakh users
-      constituencies: 11,
-      citizenData: [
-        { name: 'Farmers', value: 35, color: '#FF8042' },
-        { name: 'Students', value: 25, color: '#0088FE' },
-        { name: 'Government Employees', value: 18, color: '#00C49F' },
-        { name: 'Private Employees', value: 10, color: '#FFBB28' },
-        { name: 'Business Owners', value: 7, color: '#8884D8' },
-        { name: 'Others', value: 5, color: '#82CA9D' }
-      ],
-      monthlyComplaints: [
-        { month: 'Jul 2024', complaints: 22, resolved: 19, pending: 3 },
-        { month: 'Aug 2024', complaints: 28, resolved: 24, pending: 4 },
-        { month: 'Sep 2024', complaints: 18, resolved: 17, pending: 1 },
-        { month: 'Oct 2024', complaints: 32, resolved: 28, pending: 4 },
-        { month: 'Nov 2024', complaints: 21, resolved: 19, pending: 2 },
-        { month: 'Dec 2024', complaints: 15, resolved: 14, pending: 1 },
-        { month: 'Jan 2025', complaints: 36, resolved: 31, pending: 5 },
-        { month: 'Feb 2025', complaints: 24, resolved: 21, pending: 3 },
-        { month: 'Mar 2025', complaints: 19, resolved: 17, pending: 2 },
-        { month: 'Apr 2025', complaints: 16, resolved: 15, pending: 1 },
-        { month: 'May 2025', complaints: 29, resolved: 26, pending: 3 },
-        { month: 'Jun 2025', complaints: 20, resolved: 18, pending: 2 },
-        { month: 'Jul 2025', complaints: 14, resolved: 13, pending: 1 }
-      ],
-      complaintCategories: [
-        { category: 'Agriculture Support', count: 72, high: 20, medium: 35, low: 17 },
-        { category: 'Water Supply', count: 58, high: 15, medium: 25, low: 18 },
-        { category: 'Road Connectivity', count: 65, high: 18, medium: 28, low: 19 },
-        { category: 'Healthcare', count: 34, high: 8, medium: 16, low: 10 },
-        { category: 'Education', count: 41, high: 6, medium: 19, low: 16 },
-        { category: 'Electricity', count: 49, high: 10, medium: 23, low: 16 }
-      ],
-      budgetData: [
-        { category: 'Agriculture Development', allocated: 52, spent: 34, remaining: 18 },
-        { category: 'Rural Roads', allocated: 43, spent: 31, remaining: 12 },
-        { category: 'Water Supply', allocated: 28, spent: 18, remaining: 10 },
-        { category: 'Healthcare', allocated: 22, spent: 15, remaining: 7 }
-      ]
-    },
-    Udalguri: {
-      users: 5.67, // 5.67 lakh users
-      constituencies: 10,
-      citizenData: [
-        { name: 'Farmers', value: 38, color: '#FF8042' },
-        { name: 'Students', value: 22, color: '#0088FE' },
-        { name: 'Tea Garden Workers', value: 20, color: '#00C49F' },
-        { name: 'Government Employees', value: 12, color: '#FFBB28' },
-        { name: 'Business Owners', value: 5, color: '#8884D8' },
-        { name: 'Others', value: 3, color: '#82CA9D' }
-      ],
-      monthlyComplaints: [
-        { month: 'Jul 2024', complaints: 19, resolved: 16, pending: 3 },
-        { month: 'Aug 2024', complaints: 24, resolved: 21, pending: 3 },
-        { month: 'Sep 2024', complaints: 15, resolved: 14, pending: 1 },
-        { month: 'Oct 2024', complaints: 28, resolved: 24, pending: 4 },
-        { month: 'Nov 2024', complaints: 17, resolved: 16, pending: 1 },
-        { month: 'Dec 2024', complaints: 12, resolved: 11, pending: 1 },
-        { month: 'Jan 2025', complaints: 31, resolved: 27, pending: 4 },
-        { month: 'Feb 2025', complaints: 20, resolved: 18, pending: 2 },
-        { month: 'Mar 2025', complaints: 16, resolved: 15, pending: 1 },
-        { month: 'Apr 2025', complaints: 13, resolved: 12, pending: 1 },
-        { month: 'May 2025', complaints: 25, resolved: 22, pending: 3 },
-        { month: 'Jun 2025', complaints: 18, resolved: 16, pending: 2 },
-        { month: 'Jul 2025', complaints: 11, resolved: 10, pending: 1 }
-      ],
-      complaintCategories: [
-        { category: 'Tea Garden Issues', count: 68, high: 18, medium: 32, low: 18 },
-        { category: 'Forest Conservation', count: 45, high: 12, medium: 20, low: 13 },
-        { category: 'Road Connectivity', count: 52, high: 14, medium: 24, low: 14 },
-        { category: 'Water Supply', count: 38, high: 9, medium: 18, low: 11 },
-        { category: 'Healthcare', count: 29, high: 6, medium: 14, low: 9 },
-        { category: 'Education', count: 33, high: 5, medium: 16, low: 12 }
-      ],
-      budgetData: [
-        { category: 'Tea Industry Support', allocated: 38, spent: 24, remaining: 14 },
-        { category: 'Forest Development', allocated: 29, spent: 19, remaining: 10 },
-        { category: 'Rural Infrastructure', allocated: 34, spent: 25, remaining: 9 },
-        { category: 'Healthcare', allocated: 18, spent: 12, remaining: 6 }
-      ]
-    },
-    Chirang: {
-      users: 4.23, // 4.23 lakh users
-      constituencies: 7,
-      citizenData: [
-        { name: 'Farmers', value: 42, color: '#FF8042' },
-        { name: 'Students', value: 24, color: '#0088FE' },
-        { name: 'Government Employees', value: 15, color: '#00C49F' },
-        { name: 'Private Employees', value: 8, color: '#FFBB28' },
-        { name: 'Forest Workers', value: 6, color: '#8884D8' },
-        { name: 'Others', value: 5, color: '#82CA9D' }
-      ],
-      monthlyComplaints: [
-        { month: 'Jul 2024', complaints: 15, resolved: 13, pending: 2 },
-        { month: 'Aug 2024', complaints: 19, resolved: 16, pending: 3 },
-        { month: 'Sep 2024', complaints: 12, resolved: 11, pending: 1 },
-        { month: 'Oct 2024', complaints: 22, resolved: 19, pending: 3 },
-        { month: 'Nov 2024', complaints: 14, resolved: 13, pending: 1 },
-        { month: 'Dec 2024', complaints: 9, resolved: 8, pending: 1 },
-        { month: 'Jan 2025', complaints: 25, resolved: 21, pending: 4 },
-        { month: 'Feb 2025', complaints: 16, resolved: 14, pending: 2 },
-        { month: 'Mar 2025', complaints: 13, resolved: 12, pending: 1 },
-        { month: 'Apr 2025', complaints: 10, resolved: 9, pending: 1 },
-        { month: 'May 2025', complaints: 20, resolved: 18, pending: 2 },
-        { month: 'Jun 2025', complaints: 14, resolved: 12, pending: 2 },
-        { month: 'Jul 2025', complaints: 8, resolved: 7, pending: 1 }
-      ],
-      complaintCategories: [
-        { category: 'Forest Rights', count: 48, high: 12, medium: 22, low: 14 },
-        { category: 'Agriculture Support', count: 42, high: 10, medium: 20, low: 12 },
-        { category: 'Water Supply', count: 35, high: 8, medium: 16, low: 11 },
-        { category: 'Road Connectivity', count: 38, high: 9, medium: 18, low: 11 },
-        { category: 'Healthcare', count: 24, high: 5, medium: 12, low: 7 },
-        { category: 'Education', count: 28, high: 4, medium: 14, low: 10 }
-      ],
-      budgetData: [
-        { category: 'Forest Conservation', allocated: 25, spent: 16, remaining: 9 },
-        { category: 'Agriculture Development', allocated: 32, spent: 22, remaining: 10 },
-        { category: 'Rural Infrastructure', allocated: 28, spent: 19, remaining: 9 },
-        { category: 'Community Development', allocated: 15, spent: 10, remaining: 5 }
-      ]
-    },
-    Tamulpur: {
-      users: 2.98, // 2.98 lakh users
-      constituencies: 0, // New district
-      citizenData: [
-        { name: 'Farmers', value: 45, color: '#FF8042' },
-        { name: 'Students', value: 20, color: '#0088FE' },
-        { name: 'Government Employees', value: 12, color: '#00C49F' },
-        { name: 'Private Employees', value: 10, color: '#FFBB28' },
-        { name: 'Business Owners', value: 8, color: '#8884D8' },
-        { name: 'Others', value: 5, color: '#82CA9D' }
-      ],
-      monthlyComplaints: [
-        { month: 'Jul 2024', complaints: 8, resolved: 7, pending: 1 },
-        { month: 'Aug 2024', complaints: 12, resolved: 10, pending: 2 },
-        { month: 'Sep 2024', complaints: 6, resolved: 6, pending: 0 },
-        { month: 'Oct 2024', complaints: 15, resolved: 13, pending: 2 },
-        { month: 'Nov 2024', complaints: 9, resolved: 8, pending: 1 },
-        { month: 'Dec 2024', complaints: 5, resolved: 5, pending: 0 },
-        { month: 'Jan 2025', complaints: 18, resolved: 15, pending: 3 },
-        { month: 'Feb 2025', complaints: 11, resolved: 9, pending: 2 },
-        { month: 'Mar 2025', complaints: 8, resolved: 7, pending: 1 },
-        { month: 'Apr 2025', complaints: 6, resolved: 6, pending: 0 },
-        { month: 'May 2025', complaints: 14, resolved: 12, pending: 2 },
-        { month: 'Jun 2025', complaints: 10, resolved: 9, pending: 1 },
-        { month: 'Jul 2025', complaints: 4, resolved: 4, pending: 0 }
-      ],
-      complaintCategories: [
-        { category: 'Basic Infrastructure', count: 32, high: 8, medium: 15, low: 9 },
-        { category: 'Water Supply', count: 28, high: 6, medium: 13, low: 9 },
-        { category: 'Healthcare Access', count: 22, high: 5, medium: 10, low: 7 },
-        { category: 'Education Infrastructure', count: 25, high: 4, medium: 12, low: 9 },
-        { category: 'Road Connectivity', count: 30, high: 7, medium: 14, low: 9 },
-        { category: 'Administrative Services', count: 18, high: 3, medium: 8, low: 7 }
-      ],
-      budgetData: [
-        { category: 'Basic Infrastructure', allocated: 35, spent: 15, remaining: 20 },
-        { category: 'Administrative Setup', allocated: 20, spent: 8, remaining: 12 },
-        { category: 'Healthcare Development', allocated: 18, spent: 7, remaining: 11 },
-        { category: 'Education Infrastructure', allocated: 22, spent: 9, remaining: 13 }
-      ]
-    }
+      monthlyComplaints: [],
+      complaintCategories: [],
+      budgetData: []
+    };
   };
-  // Get current district data
-  const currentDistrictData = districtSpecificData[selectedDistrict];
 
-  // Ideas implementation data (generic for now, can be made district-specific)
+  const currentData = getCurrentData();
+
+  // Ideas implementation data
   const ideaCategories = [
     { category: 'Digital Services', total: 23, implemented: 8, inProgress: 9, pending: 6 },
     { category: 'Agriculture Tech', total: 34, implemented: 12, inProgress: 15, pending: 7 },
@@ -367,14 +326,14 @@ const Reports = () => {
     { category: 'Environmental Conservation', total: 28, implemented: 10, inProgress: 12, pending: 6 }
   ];
 
-  // Satisfaction data (district-specific)
+  // Satisfaction data
   const satisfactionData = [
-    { service: 'Water Supply', satisfaction: selectedDistrict === 'Kokrajhar' ? 75 : selectedDistrict === 'Baksa' ? 68 : selectedDistrict === 'Udalguri' ? 72 : selectedDistrict === 'Chirang' ? 70 : 60, complaints: 8 },
-    { service: 'Electricity', satisfaction: selectedDistrict === 'Kokrajhar' ? 82 : selectedDistrict === 'Baksa' ? 78 : selectedDistrict === 'Udalguri' ? 80 : selectedDistrict === 'Chirang' ? 76 : 65, complaints: 5 },
-    { service: 'Road Quality', satisfaction: selectedDistrict === 'Kokrajhar' ? 70 : selectedDistrict === 'Baksa' ? 65 : selectedDistrict === 'Udalguri' ? 68 : selectedDistrict === 'Chirang' ? 62 : 58, complaints: 12 },
-    { service: 'Healthcare', satisfaction: selectedDistrict === 'Kokrajhar' ? 78 : selectedDistrict === 'Baksa' ? 74 : selectedDistrict === 'Udalguri' ? 76 : selectedDistrict === 'Chirang' ? 72 : 68, complaints: 7 },
-    { service: 'Education', satisfaction: selectedDistrict === 'Kokrajhar' ? 85 : selectedDistrict === 'Baksa' ? 80 : selectedDistrict === 'Udalguri' ? 82 : selectedDistrict === 'Chirang' ? 78 : 75, complaints: 4 },
-    { service: 'Administrative Services', satisfaction: selectedDistrict === 'Kokrajhar' ? 88 : selectedDistrict === 'Baksa' ? 85 : selectedDistrict === 'Udalguri' ? 87 : selectedDistrict === 'Chirang' ? 83 : 70, complaints: 3 }
+    { service: 'Water Supply', satisfaction: 75, complaints: 8 },
+    { service: 'Electricity', satisfaction: 82, complaints: 5 },
+    { service: 'Road Quality', satisfaction: 70, complaints: 12 },
+    { service: 'Healthcare', satisfaction: 78, complaints: 7 },
+    { service: 'Education', satisfaction: 85, complaints: 4 },
+    { service: 'Administrative Services', satisfaction: 88, complaints: 3 }
   ];
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658'];
@@ -403,58 +362,109 @@ const Reports = () => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        {/* Header with District Selector */}
+        {/* Header with District and Constituency Selectors */}
         <div className="mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                BTC Districts Dashboard
+                BTC Constituency Dashboard
               </h1>
               <p className="text-gray-600">
-                Comprehensive analytics for {selectedDistrict} District (July 2024 - July 2025)
+                {selectedConstituency && selectedConstituency !== 'all'
+                  ? `Analytics for ${selectedConstituency} Constituency, ${selectedDistrict} District`
+                  : `District-level analytics for ${selectedDistrict} District`
+                }
               </p>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
+              {/* District Selector */}
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-blue-600" />
-                <label className="text-sm font-medium text-gray-700">Select District:</label>
+                <label className="text-sm font-medium text-gray-700">District:</label>
+                <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Choose a district" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    {Object.keys(btcDistricts).map((districtKey) => (
+                      <SelectItem key={districtKey} value={districtKey}>
+                        {btcDistricts[districtKey].label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Choose a district" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {btcDistricts.map((district) => (
-                    <SelectItem key={district.value} value={district.value}>
-                      {district.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+
+              {/* Constituency Selector */}
+              <div className="flex items-center gap-2">
+                <Vote className="h-5 w-5 text-green-600" />
+                <label className="text-sm font-medium text-gray-700">Constituency:</label>
+                <Select value={selectedConstituency} onValueChange={setSelectedConstituency}>
+                  <SelectTrigger className="w-64">
+                    <SelectValue placeholder="Choose a constituency" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    <SelectItem value="all">All Constituencies</SelectItem>
+                    {btcDistricts[selectedDistrict]?.constituencies.map((constituency) => (
+                      <SelectItem key={constituency.value} value={constituency.value}>
+                        {constituency.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
-          {/* District Summary Cards */}
+          {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
             <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-blue-100 text-sm">Active Users</p>
-                    <p className="text-2xl font-bold">{currentDistrictData.users.toLocaleString()} Lacs</p>
+                    <p className="text-blue-100 text-sm">
+                      {selectedConstituency && selectedConstituency !== 'all' ? 'Constituency Users' : 'District Users'}
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {selectedConstituency && selectedConstituency !== 'all'
+                        ? `${(currentData.users / 1000).toFixed(1)}K` 
+                        : `${(currentData.users / 100000).toFixed(1)} Lacs`
+                      }
+                    </p>
                   </div>
                   <Users className="h-8 w-8 text-blue-200" />
                 </div>
               </CardContent>
             </Card>
 
+            {selectedConstituency && selectedConstituency !== 'all' && (
+              <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-purple-100 text-sm">Voter Turnout</p>
+                      <p className="text-2xl font-bold">{currentData.voterTurnout}%</p>
+                    </div>
+                    <Vote className="h-8 w-8 text-purple-200" />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-green-100 text-sm">Constituencies</p>
-                    <p className="text-2xl font-bold">{currentDistrictData.constituencies}</p>
+                    <p className="text-green-100 text-sm">
+                      {selectedConstituency && selectedConstituency !== 'all' ? 'Constituency Type' : 'Total Constituencies'}
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {selectedConstituency && selectedConstituency !== 'all'
+                        ? btcDistricts[selectedDistrict]?.constituencies.find(c => c.value === selectedConstituency)?.type || 'General'
+                        : currentData.constituencies
+                      }
+                    </p>
                   </div>
                   <Building className="h-8 w-8 text-green-200" />
                 </div>
@@ -467,412 +477,259 @@ const Reports = () => {
                   <div>
                     <p className="text-orange-100 text-sm">Total Complaints</p>
                     <p className="text-2xl font-bold">
-                      {currentDistrictData.monthlyComplaints.reduce((sum, month) => sum + month.complaints, 0)}
+                      {selectedConstituency && selectedConstituency !== 'all'
+                        ? currentData.monthlyComplaints?.reduce((sum, month) => sum + month.complaints, 0) || 0
+                        : 'N/A'
+                      }
                     </p>
                   </div>
                   <FileText className="h-8 w-8 text-orange-200" />
                 </div>
               </CardContent>
             </Card>
-
-            <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-purple-100 text-sm">Budget Allocated</p>
-                    <p className="text-2xl font-bold">
-                      ₹{currentDistrictData.budgetData.reduce((sum, item) => sum + item.allocated, 0)}Cr
-                    </p>
-                  </div>
-                  <TrendingUp className="h-8 w-8 text-purple-200" />
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="complaints">Complaints</TabsTrigger>
-            <TabsTrigger value="projects">Projects</TabsTrigger>
-            <TabsTrigger value="satisfaction">Satisfaction</TabsTrigger>
-            <TabsTrigger value="geography">Geography</TabsTrigger>
-          </TabsList>
+        {selectedConstituency && selectedConstituency !== 'all' ? (
+          /* Constituency-level data display */
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="complaints">Complaints</TabsTrigger>
+              <TabsTrigger value="projects">Projects</TabsTrigger>
+              <TabsTrigger value="satisfaction">Satisfaction</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Citizen Demographics */}
+            <TabsContent value="overview" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Citizen Demographics */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Citizen Demographics - {selectedConstituency}</CardTitle>
+                    <CardDescription>Distribution by profession</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={currentData.citizenData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={renderCustomizedLabel}
+                          outerRadius={100}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {currentData.citizenData?.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => [`${value}%`, 'Percentage']} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="grid grid-cols-2 gap-2 mt-4">
+                      {currentData.citizenData?.map((item, index) => (
+                        <div key={index} className="flex items-center">
+                          <div 
+                            className="w-3 h-3 rounded-full mr-2" 
+                            style={{ backgroundColor: item.color }}
+                          ></div>
+                          <span className="text-sm">{item.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Ideas Implementation Status */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Ideas Implementation Status</CardTitle>
+                    <CardDescription>Local citizen ideas by implementation stage</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={ideaCategories}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey="category" 
+                          angle={-45}
+                          textAnchor="end"
+                          height={80}
+                          fontSize={10}
+                        />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="implemented" stackId="a" fill="#00C49F" name="Implemented" />
+                        <Bar dataKey="inProgress" stackId="a" fill="#FFBB28" name="In Progress" />
+                        <Bar dataKey="pending" stackId="a" fill="#FF8042" name="Pending" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="complaints" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Monthly Complaints Trend */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Monthly Complaints & Resolution - {selectedConstituency}</CardTitle>
+                    <CardDescription>Complaints received and resolved over time</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <AreaChart data={currentData.monthlyComplaints}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey="month" 
+                          angle={-45}
+                          textAnchor="end"
+                          height={80}
+                          fontSize={10}
+                        />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Area type="monotone" dataKey="complaints" stackId="1" stroke="#8884d8" fill="#8884d8" name="Total Complaints" />
+                        <Area type="monotone" dataKey="resolved" stackId="2" stroke="#82ca9d" fill="#82ca9d" name="Resolved" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                {/* Complaint Categories */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Complaints by Category - {selectedConstituency}</CardTitle>
+                    <CardDescription>Category-wise complaint distribution</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={currentData.complaintCategories}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey="category" 
+                          angle={-45}
+                          textAnchor="end"
+                          height={80}
+                          fontSize={10}
+                        />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="count" fill="#0088FE" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="projects" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Citizen Demographics - {selectedDistrict}</CardTitle>
-                  <CardDescription>Distribution by profession</CardDescription>
+                  <CardTitle>Budget Allocation & Utilization - {selectedConstituency}</CardTitle>
+                  <CardDescription>Financial overview across local projects</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={currentDistrictData.citizenData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={renderCustomizedLabel}
-                        outerRadius={100}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {currentDistrictData.citizenData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(value) => [`${value}%`, 'Percentage']} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="grid grid-cols-2 gap-2 mt-4">
-                    {currentDistrictData.citizenData.map((item, index) => (
-                      <div key={index} className="flex items-center">
-                        <div 
-                          className="w-3 h-3 rounded-full mr-2" 
-                          style={{ backgroundColor: item.color }}
-                        ></div>
-                        <span className="text-sm">{item.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Ideas Implementation Status */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Ideas Implementation Status</CardTitle>
-                  <CardDescription>Citizen ideas by implementation stage</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={ideaCategories}>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <ComposedChart data={currentData.budgetData}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="category" 
-                        angle={-45}
-                        textAnchor="end"
-                        height={80}
-                        fontSize={10}
-                      />
+                      <XAxis dataKey="category" angle={-45} textAnchor="end" height={80} />
                       <YAxis />
                       <Tooltip />
                       <Legend />
-                      <Bar dataKey="implemented" stackId="a" fill="#00C49F" name="Implemented" />
-                      <Bar dataKey="inProgress" stackId="a" fill="#FFBB28" name="In Progress" />
-                      <Bar dataKey="pending" stackId="a" fill="#FF8042" name="Pending" />
-                    </BarChart>
+                      <Bar dataKey="allocated" fill="#8884d8" name="Allocated (₹Lacs)" />
+                      <Bar dataKey="spent" fill="#82ca9d" name="Spent (₹Lacs)" />
+                      <Bar dataKey="remaining" fill="#ff7300" name="Remaining (₹Lacs)" />
+                    </ComposedChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
-            </div>
+            </TabsContent>
 
-            {/* Budget Overview */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Budget Allocation & Utilization - {selectedDistrict} (₹ Crores)</CardTitle>
-                <CardDescription>Financial overview across departments</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <ComposedChart data={currentDistrictData.budgetData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="category" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="allocated" fill="#8884d8" name="Allocated" />
-                    <Bar dataKey="spent" fill="#82ca9d" name="Spent" />
-                    <Bar dataKey="remaining" fill="#ff7300" name="Remaining" />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="complaints" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Monthly Complaints Trend */}
+            <TabsContent value="satisfaction" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Monthly Complaints & Resolution - {selectedDistrict}</CardTitle>
-                  <CardDescription>Complaints received and resolved over time</CardDescription>
+                  <CardTitle>Citizen Satisfaction by Service - {selectedConstituency}</CardTitle>
+                  <CardDescription>Satisfaction ratings for local services</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <AreaChart data={currentDistrictData.monthlyComplaints}>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <ComposedChart data={satisfactionData}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="month" 
-                        angle={-45}
-                        textAnchor="end"
-                        height={80}
-                        fontSize={10}
-                      />
-                      <YAxis />
+                      <XAxis dataKey="service" angle={-45} textAnchor="end" height={80} />
+                      <YAxis yAxisId="left" />
+                      <YAxis yAxisId="right" orientation="right" />
                       <Tooltip />
                       <Legend />
-                      <Area type="monotone" dataKey="complaints" stackId="1" stroke="#8884d8" fill="#8884d8" name="Total Complaints" />
-                      <Area type="monotone" dataKey="resolved" stackId="2" stroke="#82ca9d" fill="#82ca9d" name="Resolved" />
-                    </AreaChart>
+                      <Bar yAxisId="left" dataKey="satisfaction" fill="#00C49F" name="Satisfaction %" />
+                      <Line yAxisId="right" type="monotone" dataKey="complaints" stroke="#ff7300" name="Complaint Rate" />
+                    </ComposedChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
+            </TabsContent>
+          </Tabs>
+        ) : (
+          /* District-level overview when no constituency is selected */
+          <Card>
+            <CardHeader>
+              <CardTitle>Select a Constituency</CardTitle>
+              <CardDescription>Choose a constituency from {selectedDistrict} district to view detailed analytics</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {btcDistricts[selectedDistrict]?.constituencies.map((constituency) => (
+                  <Card 
+                    key={constituency.value} 
+                    className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 border-gray-200 hover:border-blue-300"
+                    onClick={() => setSelectedConstituency(constituency.value)}
+                  >
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center justify-between">
+                        {constituency.label}
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          constituency.type === 'ST' ? 'bg-green-100 text-green-800' :
+                          constituency.type === 'Non-ST' ? 'bg-blue-100 text-blue-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {constituency.type}
+                        </span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600">Click to view detailed constituency analytics</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-              {/* Complaint Priority Distribution */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Complaints by Priority Level - {selectedDistrict}</CardTitle>
-                  <CardDescription>Category-wise priority distribution</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={currentDistrictData.complaintCategories}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="category" 
-                        angle={-45}
-                        textAnchor="end"
-                        height={80}
-                        fontSize={10}
-                      />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="high" stackId="a" fill="#FF8042" name="High Priority" />
-                      <Bar dataKey="medium" stackId="a" fill="#FFBB28" name="Medium Priority" />
-                      <Bar dataKey="low" stackId="a" fill="#00C49F" name="Low Priority" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Total Complaints by Category */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Total Complaints by Category - {selectedDistrict}</CardTitle>
-                <CardDescription>Overall complaint distribution</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={currentDistrictData.complaintCategories}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="category" angle={-45} textAnchor="end" height={80} />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#0088FE" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="projects" className="space-y-6">
-            {/* Budget Breakdown */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Project Budget Breakdown - {selectedDistrict}</CardTitle>
-                <CardDescription>Department-wise budget allocation and utilization</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <ComposedChart data={currentDistrictData.budgetData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="category" angle={-45} textAnchor="end" height={80} />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="allocated" fill="#8884d8" name="Allocated (₹Cr)" />
-                    <Bar dataKey="spent" fill="#82ca9d" name="Spent (₹Cr)" />
-                    <Line type="monotone" dataKey="remaining" stroke="#ff7300" name="Remaining (₹Cr)" />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* Budget Utilization Pie Chart */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Budget Utilization - {selectedDistrict}</CardTitle>
-                  <CardDescription>Overall spending vs remaining budget</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { 
-                            name: 'Spent', 
-                            value: currentDistrictData.budgetData.reduce((sum, item) => sum + item.spent, 0),
-                            color: '#82ca9d'
-                          },
-                          { 
-                            name: 'Remaining', 
-                            value: currentDistrictData.budgetData.reduce((sum, item) => sum + item.remaining, 0),
-                            color: '#ff7300'
-                          }
-                        ]}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={100}
-                        fill="#8884d8"
-                        dataKey="value"
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
-                      >
-                        <Cell fill="#82ca9d" />
-                        <Cell fill="#ff7300" />
-                      </Pie>
-                      <Tooltip formatter={(value) => [`₹${value} Crores`, '']} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Department-wise Budget Distribution</CardTitle>
-                  <CardDescription>Allocation across different sectors</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={currentDistrictData.budgetData}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={100}
-                        fill="#8884d8"
-                        dataKey="allocated"
-                        label={({ category, percent }) => `${category}: ${(percent * 100).toFixed(1)}%`}
-                      >
-                        {currentDistrictData.budgetData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(value) => [`₹${value} Crores`, 'Allocated']} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="satisfaction" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Citizen Satisfaction by Service - {selectedDistrict}</CardTitle>
-                <CardDescription>Satisfaction ratings vs complaint rates</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <ComposedChart data={satisfactionData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="service" angle={-45} textAnchor="end" height={80} />
-                    <YAxis yAxisId="left" />
-                    <YAxis yAxisId="right" orientation="right" />
-                    <Tooltip />
-                    <Legend />
-                    <Bar yAxisId="left" dataKey="satisfaction" fill="#00C49F" name="Satisfaction %" />
-                    <Line yAxisId="right" type="monotone" dataKey="complaints" stroke="#ff7300" name="Complaint Rate" />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* Satisfaction Radial Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Service Satisfaction Levels - {selectedDistrict}</CardTitle>
-                <CardDescription>Radial view of satisfaction percentages</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <RadialBarChart cx="50%" cy="50%" innerRadius="10%" outerRadius="80%" data={satisfactionData}>
-                    <RadialBar dataKey="satisfaction" cornerRadius={10} fill="#8884d8" />
-                    <Tooltip />
-                    <Legend />
-                  </RadialBarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="geography" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>BTC Districts Overview</CardTitle>
-                <CardDescription>Interactive map showing all districts with {selectedDistrict} highlighted</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <BTCDistrictsMap selectedDistrict={selectedDistrict} districtData={currentDistrictData} />
-              </CardContent>
-            </Card>
-
-            {/* All Districts Summary */}
-            <Card>
-              <CardHeader>
-                <CardTitle>All BTC Districts Summary</CardTitle>
-                <CardDescription>Overview of all districts in Bodoland Territorial Council</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {btcDistricts.map((district) => {
-                    const districtData = districtSpecificData[district.value];
-                    const isSelected = district.value === selectedDistrict;
-                    return (
-                      <Card 
-                        key={district.value} 
-                        className={`cursor-pointer transition-all duration-200 ${
-                          isSelected 
-                            ? "ring-2 ring-blue-500 bg-blue-50 border-blue-200" 
-                            : "hover:shadow-lg"
-                        }`}
-                        onClick={() => setSelectedDistrict(district.value)}
-                      >
-                        <CardHeader>
-                          <CardTitle className={`text-lg ${isSelected ? "text-blue-700" : ""}`}>
-                            {district.label}
-                            {isSelected && <span className="ml-2 text-sm bg-blue-100 text-blue-700 px-2 py-1 rounded">Selected</span>}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span className="text-sm text-gray-600">Active Users:</span>
-                              <span className="font-semibold">{districtData.users.toLocaleString()} lacs</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm text-gray-600">Constituencies:</span>
-                              <span className="font-semibold">{districtData.constituencies}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm text-gray-600">Total Budget:</span>
-                              <span className="font-semibold">
-                                ₹{districtData.budgetData.reduce((sum, item) => sum + item.allocated, 0)}Cr
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm text-gray-600">Complaints:</span>
-                              <span className="font-semibold">
-                                {districtData.monthlyComplaints.reduce((sum, month) => sum + month.complaints, 0)}
-                              </span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {/* Geography Tab - always visible */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>BTC Geographic Overview</CardTitle>
+            <CardDescription>
+              {selectedConstituency && selectedConstituency !== 'all'
+                ? `Location of ${selectedConstituency} constituency within ${selectedDistrict} district`
+                : `Overview of ${selectedDistrict} district within BTC`
+              }
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BTCDistrictsMap 
+              selectedDistrict={selectedDistrict} 
+              selectedConstituency={selectedConstituency}
+              districtData={currentData} 
+            />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
